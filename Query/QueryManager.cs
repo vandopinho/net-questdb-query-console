@@ -10,7 +10,7 @@ namespace QuestDbQueryConsole.Query
 {
      public class QueryManager
      {
-          private string WriteQuery()
+          private string WritePartialQuery()
           {
                string tipoDado = string.Empty;
                int limit = 0;
@@ -22,12 +22,19 @@ namespace QuestDbQueryConsole.Query
                return query;
           }
 
+          private string WriteFullQuery()
+          {
+              string query;
+              Console.Write("Query: ");
+              return query = Console.ReadLine();
+          }
           public void DisplayData()
           {
                List<DadosEntity> listDados = new List<DadosEntity>();
                using (SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=master;Integrated Security=True;"))
                {
-                    string query = WriteQuery();
+                    //string query = WriteFullQuery();
+                    string query = WritePartialQuery();
                     DateTime inicio = DateTime.Now;
                     Console.WriteLine("Hora inicio: " + inicio.ToString());
                     conn.Open();

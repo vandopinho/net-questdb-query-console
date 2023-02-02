@@ -1,0 +1,17 @@
+﻿################################################################################
+# Este arquivo .gitignore foi criado automaticamente pelo Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/ConsoleApp1/FileContentIndex/read.lock
+/.vs/ConsoleApp1/FileContentIndex/ddbf6458-b376-45e3-a19f-fcf21c5bb4b2.vsidx
+/.vs/ConsoleApp1/FileContentIndex/b9647aa4-0aa0-4bd1-94ae-3e1f0ef7faa5.vsidx
+/.vs/ConsoleApp1/FileContentIndex/8ae9a63c-c8df-434c-b9ae-2ed6670b97ec.vsidx
+/.vs/ConsoleApp1/FileContentIndex/2f73bace-a095-4e22-9deb-a03d13c22748.vsidx
+/.vs/ConsoleApp1/FileContentIndex
+/obj/Debug/net6.0
+/.gitignore
+/.gitignore
+/obj
+/bin/Debug/net6.0
+/.vs/QuestDbQueryConsole/v17
+/.gitignore
