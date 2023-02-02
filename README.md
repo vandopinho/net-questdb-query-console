@@ -1,4 +1,4 @@
-# net-questbb-query-console
+# net-questdb-query-console
 
 How to setup an aplication to query on QuestDb on .net <br>
 Using SQLServer linked up to QuestDb and querying on it <br>
