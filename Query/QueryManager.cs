@@ -10,14 +10,26 @@ namespace QuestDbQueryConsole.Query
 {
      public class QueryManager
      {
+          private string WriteQuery()
+          {
+               string tipoDado = string.Empty;
+               int limit = 0;
+               Console.Write("SELECT: ");
+               tipoDado = Console.ReadLine();
+               Console.Write("LIMIT: ");
+               limit = int.Parse(Console.ReadLine());
+               string query = "SELECT " + tipoDado + " FROM OPENQUERY(QUESTDB,'SELECT * FROM [dados2] LIMIT " + limit + "')";
+               return query;
+          }
+
           public void DisplayData()
           {
                List<DadosEntity> listDados = new List<DadosEntity>();
                using (SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=master;Integrated Security=True;"))
                {
+                    string query = WriteQuery();
                     DateTime inicio = DateTime.Now;
                     Console.WriteLine("Hora inicio: " + inicio.ToString());
-                    string query = "SELECT * FROM OPENQUERY(QUESTDB,'SELECT * FROM [dados2] LIMIT 50000')";
                     conn.Open();
 
                     using (SqlCommand command = new SqlCommand(query, conn))
