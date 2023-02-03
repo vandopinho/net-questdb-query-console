@@ -14,7 +14,7 @@ namespace QuestDbQueryConsole
           {    
                QueryManager qm= new QueryManager();
                Console.WriteLine("Consulta QuestDB");
-               qm.DisplayData();
+               qm.DisplayData_QuestDBWireProtocol();
           }
      }
 }
