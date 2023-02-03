@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Npgsql;
+using System.Data.Common;
+using System.Reflection.PortableExecutable;
 
 namespace QuestDbQueryConsole.Query
 {
@@ -81,7 +83,7 @@ namespace QuestDbQueryConsole.Query
             List<DadosEntityWireProtocol> listmachine = new List<DadosEntityWireProtocol>();
             DadosEntityWireProtocol machine = new DadosEntityWireProtocol();
             //listmachine[0] = new QuestDB_MachineModel();
-            string query = "SELECT * FROM 'questdb-query-1675076348034.csv' LIMIT 50000000";
+            string query = "SELECT * FROM 'questdb-query-1675076348034.csv LIMIT 15000000000'";
             Console.WriteLine(query);
             using (var cmd = dataSource.CreateCommand(query))
             using (var reader = cmd.ExecuteReader())
@@ -109,6 +111,65 @@ namespace QuestDbQueryConsole.Query
             DateTime final = DateTime.Now;
             Console.WriteLine("Hora fim: " + final.ToString());
             
+        }
+
+        public void QuestDBWireProtocolInsert()
+        {
+            Console.WriteLine("Teste QuestDB Wire Protocol c/ Insert");
+            string username = "admin";
+            string password = "quest";
+            string database = "qdb";
+            int port = 8812;
+            var connectionString = $@"host=localhost;port={port};username={username};password={password};database={database};ServerCompatibilityMode=NoTypeLoading;";
+            var dataSource = NpgsqlDataSource.Create(connectionString);
+            var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+            dataSource = dataSourceBuilder.Build();
+
+            using (var cmd = dataSource.CreateCommand("INSERT INTO QuestTeste (ID) VALUES (" + GenerateRandom().ToString() + ")"))
+            {
+                DateTime inicio = DateTime.Now;
+                Console.WriteLine("Hora inicio: " + inicio.ToString());
+
+                cmd.Parameters.AddWithValue(1);
+                cmd.ExecuteNonQuery();
+            }
+
+            DateTime final = DateTime.Now;
+            Console.WriteLine("Hora fim: " + final.ToString());
+
+            using (var cmd = dataSource.CreateCommand("SELECT ID FROM QuestTeste"))
+            using (DbConnection conn = new NpgsqlConnection(connectionString))
+            {
+                
+                    conn.Open();
+                using (DbCommand command = conn.CreateCommand())
+                {
+                    //cmd.Parameters.AddWithValue(1);
+                    //cmd.ExecuteNonQuery();
+
+                    using (var reader = cmd.ExecuteReader())
+                    while (reader.Read())
+                    {
+                        Console.WriteLine(reader.GetInt64(0));
+                    }
+                }            
+            }       
+        }
+        private static float GenerateRandom()
+        {
+            Random r = new Random();
+            int rInt = r.Next(0, 50);
+
+            var rand = new Random();
+            double min = 1;
+            double max = 100;
+            double range = max - min;
+
+            double sample2 = rand.NextDouble();
+            double scaled2 = (sample2 * range) + min;
+            //return (float)scaled2 + rInt
+            return rInt;
+
         }
     }
 }
