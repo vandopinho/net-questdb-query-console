@@ -24,7 +24,6 @@ namespace QuestDbQueryConsole.Query
                string query = "SELECT " + tipoDado + " FROM OPENQUERY(QUESTDB,'SELECT * FROM [dados2] LIMIT " + limit + "')";
                return query;
           }
-
           private string WriteFullQuery()
           {
               string query;
@@ -33,15 +32,15 @@ namespace QuestDbQueryConsole.Query
           }
           public void DisplayData()
           {
+               Console.WriteLine("\n\nSelect usando OpenQuery do SQL Server");
                List<DadosEntity> listDados = new List<DadosEntity>();
                using (SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=master;Integrated Security=True;"))
                {
                 //string query = WriteFullQuery();
                 string query = "SELECT * FROM OPENQUERY (\r\n    QuestDB, \r\n    'SELECT * FROM QuestTeste'\r\n    );";
                     DateTime inicio = DateTime.Now;
-                    Console.WriteLine("Hora inicio: " + inicio.ToString());
+                    Console.WriteLine(query);
                     conn.Open();
-
                     using (SqlCommand command = new SqlCommand(query, conn))
                     {
                          SqlDataReader dr = command.ExecuteReader();
@@ -68,19 +67,20 @@ namespace QuestDbQueryConsole.Query
 
                         while (dr.Read())
                         {
-                            Console.WriteLine(dr.GetInt32(0));
+                            Console.Write(dr.GetInt32(0) + "; ");
                         }
                     }
 
                     }
-                DateTime final = DateTime.Now;
-                Console.WriteLine("Hora fim: " + final.ToString());
+                    Console.WriteLine("\nHora inicio: " + inicio.ToString());
+                    DateTime final = DateTime.Now;
+                Console.WriteLine("Hora fim: " + final.ToString()+"\n");
                 conn.Close();
             }
           }
         public void DisplayData_QuestDBWireProtocol()
         {
-
+            Console.WriteLine("\n\nSelect usando Npgsql Wire Protocol");
             string username = "admin";
             string password = "quest";
             string database = "questdb";
@@ -88,15 +88,15 @@ namespace QuestDbQueryConsole.Query
             var connectionString = $@"host=localhost;port={port};username={username};password={password};database={database};ServerCompatibilityMode=NoTypeLoading;";
 
             var dataSource = NpgsqlDataSource.Create(connectionString);
-
+            string query = "SELECT * FROM 'dados2' LIMIT 150000000";
+            Console.WriteLine(query);
             DateTime inicio = DateTime.Now;
             Console.WriteLine("Hora inicio: " + inicio.ToString());
 
             List<DadosEntityWireProtocol> listmachine = new List<DadosEntityWireProtocol>();
             DadosEntityWireProtocol machine = new DadosEntityWireProtocol();
             //listmachine[0] = new QuestDB_MachineModel();
-            string query = "SELECT * FROM 'questdb-query-1675076348034.csv' LIMIT 15000000";
-            Console.WriteLine(query);
+            
             using (var cmd = dataSource.CreateCommand(query))
 
             using (var reader = cmd.ExecuteReader())
@@ -126,16 +126,15 @@ namespace QuestDbQueryConsole.Query
             
 
             DateTime final = DateTime.Now;
-            Console.WriteLine("Hora fim: " + final.ToString());
+            Console.WriteLine("Hora fim: " + final.ToString()+"\n");
             
         }
-
         public void InsertData_QuestDBWireProtocol()
         {
             Console.WriteLine("Teste QuestDB Wire Protocol c/ Insert");
             string username = "admin";
             string password = "quest";
-            string database = "qdb";
+            string database = "questdb";
             int port = 8812;
             var connectionString = $@"host=localhost;port={port};username={username};password={password};database={database};ServerCompatibilityMode=NoTypeLoading;";
             var dataSource = NpgsqlDataSource.Create(connectionString);
@@ -143,33 +142,32 @@ namespace QuestDbQueryConsole.Query
             dataSource = dataSourceBuilder.Build();
             
             DateTime inicio = DateTime.Now;
-            Console.WriteLine("Hora inicio: " + inicio.ToString());
+           
 
                 using (var cmd = dataSource.CreateCommand("INSERT INTO QuestTeste (ID) VALUES (" + GenerateRandom().ToString() + ")"))
                 {
                 //dataSource.OpenConnection();
                 cmd.Parameters.AddWithValue(1);
-                cmd.ExecuteNonQuery();                                  
+                cmd.ExecuteNonQuery();
+                Console.WriteLine(cmd.CommandText);
                 }
+               Console.WriteLine("Hora inicio: " + inicio.ToString());
+               DateTime final = DateTime.Now;
+            Console.WriteLine("Hora fim: " + final.ToString() + "\n");
 
-            DateTime final = DateTime.Now;
-            Console.WriteLine("Hora fim: " + final.ToString());
-
-
-            Console.WriteLine("Selecionando Tabela de Teste");
 
             using (var cmd = dataSource.CreateCommand("SELECT ID FROM QuestTeste"))
             using (DbConnection conn = new NpgsqlConnection(connectionString))
             {
-
-                using (DbCommand command = conn.CreateCommand())
+                    Console.WriteLine(cmd.CommandText);
+                    using (DbCommand command = conn.CreateCommand())
                 {
                     //cmd.Parameters.AddWithValue(1);
                     //cmd.ExecuteNonQuery();
                     using (var reader = cmd.ExecuteReader())
                     while (reader.Read())
                     {
-                        Console.WriteLine(reader.GetInt64(0));
+                        Console.Write(reader.GetInt64(0) + "; ");
                     }
                     conn.Close();
                     conn.Dispose();
@@ -187,8 +185,9 @@ namespace QuestDbQueryConsole.Query
                 //string query = WriteFullQuery();
                 //string query = WritePartialQuery();
                 string query = "INSERT OPENQUERY (QUESTDB,'Select ID from QuestTeste') VALUES('1');";
+                Console.WriteLine("Insert usando OpenQuery\n"+query);
                 DateTime inicio = DateTime.Now;
-                Console.WriteLine("Hora inicio: " + inicio.ToString());
+                
                 conn.Open();
 
                 using (SqlCommand command = new SqlCommand(query, conn))
@@ -212,13 +211,13 @@ namespace QuestDbQueryConsole.Query
                     //    int operationMode = dr.GetInt32(10);
                     //    listDados.Add(new DadosEntity() { Datetime = datetime, PeriodStart = periodStart, Name = name, Flow = flow, FlowSetpoint = flowSetPoint, Pressure = pressure, PressureSetpoint = pressureSetPoint, OverloadValue = overloadValue, OperationStatus = operationStatus, OperationType = operationType, OperationMode = operationMode });
                     //}
+                    Console.WriteLine("Hora inicio: " + inicio.ToString());
                     DateTime final = DateTime.Now;
-                    Console.WriteLine("Hora fim: " + final.ToString());
+                    Console.WriteLine("Hora fim: " + final.ToString() + "\n");
                     conn.Close();
                 }
             }
         }
-
         /// <summary>
         /// Método Auxiliar para gerar int ou float aleatório
         /// </summary>
