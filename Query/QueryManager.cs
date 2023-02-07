@@ -36,8 +36,8 @@ namespace QuestDbQueryConsole.Query
                List<DadosEntity> listDados = new List<DadosEntity>();
                using (SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=master;Integrated Security=True;"))
                {
-                    //string query = WriteFullQuery();
-                    string query = WritePartialQuery();
+                //string query = WriteFullQuery();
+                string query = "SELECT * FROM OPENQUERY (\r\n    QuestDB, \r\n    'SELECT * FROM QuestTeste'\r\n    );";
                     DateTime inicio = DateTime.Now;
                     Console.WriteLine("Hora inicio: " + inicio.ToString());
                     conn.Open();
@@ -45,26 +45,38 @@ namespace QuestDbQueryConsole.Query
                     using (SqlCommand command = new SqlCommand(query, conn))
                     {
                          SqlDataReader dr = command.ExecuteReader();
-                         while (dr.Read())
-                         {
-                              string datetime = dr.GetString(0);
-                              DateTime periodStart = dr.GetDateTime(1);
-                              string name = dr.GetString(2);
-                              float flow = dr.GetFloat(3);
-                              float flowSetPoint = dr.GetFloat(4);
-                              float pressure = dr.GetFloat(5);
-                              float pressureSetPoint = dr.GetFloat(6);
-                              float overloadValue = dr.GetFloat(7);
-                              int operationStatus = dr.GetInt32(8);
-                              int operationType = dr.GetInt32(9);
-                              int operationMode = dr.GetInt32(10);
-                              listDados.Add(new DadosEntity() { Datetime = datetime, PeriodStart = periodStart, Name = name, Flow = flow, FlowSetpoint = flowSetPoint, Pressure = pressure, PressureSetpoint = pressureSetPoint, OverloadValue = overloadValue, OperationStatus = operationStatus, OperationType = operationType, OperationMode = operationMode });
-                         }
-                         DateTime final = DateTime.Now;
-                         Console.WriteLine("Hora fim: " + final.ToString());
-                         conn.Close();
+                        try
+                    {
+                        while (dr.Read())
+                        {
+                            string datetime = dr.GetString(0);
+                            DateTime periodStart = dr.GetDateTime(1);
+                            string name = dr.GetString(2);
+                            float flow = dr.GetFloat(3);
+                            float flowSetPoint = dr.GetFloat(4);
+                            float pressure = dr.GetFloat(5);
+                            float pressureSetPoint = dr.GetFloat(6);
+                            float overloadValue = dr.GetFloat(7);
+                            int operationStatus = dr.GetInt32(8);
+                            int operationType = dr.GetInt32(9);
+                            int operationMode = dr.GetInt32(10);
+                            listDados.Add(new DadosEntity() { Datetime = datetime, PeriodStart = periodStart, Name = name, Flow = flow, FlowSetpoint = flowSetPoint, Pressure = pressure, PressureSetpoint = pressureSetPoint, OverloadValue = overloadValue, OperationStatus = operationStatus, OperationType = operationType, OperationMode = operationMode });
+                        }
+
                     }
-               }
+                        catch (InvalidCastException e) {
+
+                        while (dr.Read())
+                        {
+                            Console.WriteLine(dr.GetInt32(0));
+                        }
+                    }
+
+                    }
+                DateTime final = DateTime.Now;
+                Console.WriteLine("Hora fim: " + final.ToString());
+                conn.Close();
+            }
           }
         public void DisplayData_QuestDBWireProtocol()
         {
@@ -83,11 +95,13 @@ namespace QuestDbQueryConsole.Query
             List<DadosEntityWireProtocol> listmachine = new List<DadosEntityWireProtocol>();
             DadosEntityWireProtocol machine = new DadosEntityWireProtocol();
             //listmachine[0] = new QuestDB_MachineModel();
-            string query = "SELECT * FROM 'questdb-query-1675076348034.csv LIMIT 15000000000'";
+            string query = "SELECT * FROM 'questdb-query-1675076348034.csv' LIMIT 15000000";
             Console.WriteLine(query);
             using (var cmd = dataSource.CreateCommand(query))
+
             using (var reader = cmd.ExecuteReader())
             {
+
 
                 while (reader.Read())
                 {
@@ -107,13 +121,16 @@ namespace QuestDbQueryConsole.Query
 
                     listmachine.Add(machine);
                 }
+                cmd.Dispose();
             }
+            
+
             DateTime final = DateTime.Now;
             Console.WriteLine("Hora fim: " + final.ToString());
             
         }
 
-        public void QuestDBWireProtocolInsert()
+        public void InsertData_QuestDBWireProtocol()
         {
             Console.WriteLine("Teste QuestDB Wire Protocol c/ Insert");
             string username = "admin";
@@ -124,37 +141,88 @@ namespace QuestDbQueryConsole.Query
             var dataSource = NpgsqlDataSource.Create(connectionString);
             var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
             dataSource = dataSourceBuilder.Build();
+            
+            DateTime inicio = DateTime.Now;
+            Console.WriteLine("Hora inicio: " + inicio.ToString());
 
-            using (var cmd = dataSource.CreateCommand("INSERT INTO QuestTeste (ID) VALUES (" + GenerateRandom().ToString() + ")"))
-            {
-                DateTime inicio = DateTime.Now;
-                Console.WriteLine("Hora inicio: " + inicio.ToString());
-
+                using (var cmd = dataSource.CreateCommand("INSERT INTO QuestTeste (ID) VALUES (" + GenerateRandom().ToString() + ")"))
+                {
+                //dataSource.OpenConnection();
                 cmd.Parameters.AddWithValue(1);
-                cmd.ExecuteNonQuery();
-            }
+                cmd.ExecuteNonQuery();                                  
+                }
 
             DateTime final = DateTime.Now;
             Console.WriteLine("Hora fim: " + final.ToString());
 
+
+            Console.WriteLine("Selecionando Tabela de Teste");
+
             using (var cmd = dataSource.CreateCommand("SELECT ID FROM QuestTeste"))
             using (DbConnection conn = new NpgsqlConnection(connectionString))
             {
-                
-                    conn.Open();
+
                 using (DbCommand command = conn.CreateCommand())
                 {
                     //cmd.Parameters.AddWithValue(1);
                     //cmd.ExecuteNonQuery();
-
                     using (var reader = cmd.ExecuteReader())
                     while (reader.Read())
                     {
                         Console.WriteLine(reader.GetInt64(0));
                     }
-                }            
+                    conn.Close();
+                    conn.Dispose();
+                }
+                dataSource.Dispose();
+                cmd.Dispose();
+                
             }       
         }
+        public void InsertData()
+        {
+            List<DadosEntity> listDados = new List<DadosEntity>();
+            using (SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=master;Integrated Security=True;"))
+            {
+                //string query = WriteFullQuery();
+                //string query = WritePartialQuery();
+                string query = "INSERT OPENQUERY (QUESTDB,'Select ID from QuestTeste') VALUES('1');";
+                DateTime inicio = DateTime.Now;
+                Console.WriteLine("Hora inicio: " + inicio.ToString());
+                conn.Open();
+
+                using (SqlCommand command = new SqlCommand(query, conn))
+                {
+                    //command.Parameters.AddWithValue(1);
+                    command.ExecuteNonQuery();
+
+                    //SqlDataReader dr = command.ExecuteReader();
+                    //while (dr.Read())
+                    //{
+                    //    string datetime = dr.GetString(0);
+                    //    DateTime periodStart = dr.GetDateTime(1);
+                    //    string name = dr.GetString(2);
+                    //    float flow = dr.GetFloat(3);
+                    //    float flowSetPoint = dr.GetFloat(4);
+                    //    float pressure = dr.GetFloat(5);
+                    //    float pressureSetPoint = dr.GetFloat(6);
+                    //    float overloadValue = dr.GetFloat(7);
+                    //    int operationStatus = dr.GetInt32(8);
+                    //    int operationType = dr.GetInt32(9);
+                    //    int operationMode = dr.GetInt32(10);
+                    //    listDados.Add(new DadosEntity() { Datetime = datetime, PeriodStart = periodStart, Name = name, Flow = flow, FlowSetpoint = flowSetPoint, Pressure = pressure, PressureSetpoint = pressureSetPoint, OverloadValue = overloadValue, OperationStatus = operationStatus, OperationType = operationType, OperationMode = operationMode });
+                    //}
+                    DateTime final = DateTime.Now;
+                    Console.WriteLine("Hora fim: " + final.ToString());
+                    conn.Close();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Método Auxiliar para gerar int ou float aleatório
+        /// </summary>
+        /// <returns></returns>
         private static float GenerateRandom()
         {
             Random r = new Random();
