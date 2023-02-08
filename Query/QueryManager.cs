@@ -130,24 +130,25 @@ namespace QuestDbQueryConsole.Query
             
         }
 
-        public void InsertData_QuestDBWireProtocol()
+        public Task InsertData_QuestDBWireProtocol()
         {
             Console.WriteLine("Teste QuestDB Wire Protocol c/ Insert");
             string username = "admin";
             string password = "quest";
             string database = "qdb";
             int port = 8812;
-            var connectionString = $@"host=localhost;port={port};username={username};password={password};database={database};ServerCompatibilityMode=NoTypeLoading;";
+            var connectionString = $@"host=localhost;port={port};username={username};password={password};database={database};ServerCompatibilityMode=NoTypeLoading;Multiplexing=false;";
             var dataSource = NpgsqlDataSource.Create(connectionString);
             var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
             dataSource = dataSourceBuilder.Build();
-            
+          
             DateTime inicio = DateTime.Now;
             Console.WriteLine("Hora inicio: " + inicio.ToString());
 
-                using (var cmd = dataSource.CreateCommand("INSERT INTO QuestTeste (ID) VALUES (" + GenerateRandom().ToString() + ")"))
+            string localdatestring = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffff");
+            using (var cmd = dataSource.CreateCommand("INSERT INTO TestPartition VALUES (to_timestamp('" + localdatestring + "', 'yyyy-MM-ddTHH:mm:ss.SSSUUUN')" + "," + "'" + "ssadgfrhfhgjtyktyu" + "'" + "," + GenerateRandom().ToString() + ")"))
                 {
-                //dataSource.OpenConnection();
+                //dataSource.CreateBatch();
                 cmd.Parameters.AddWithValue(1);
                 cmd.ExecuteNonQuery();                                  
                 }
@@ -156,28 +157,29 @@ namespace QuestDbQueryConsole.Query
             Console.WriteLine("Hora fim: " + final.ToString());
 
 
-            Console.WriteLine("Selecionando Tabela de Teste");
+            //Console.WriteLine("Selecionando Tabela de Teste");
 
-            using (var cmd = dataSource.CreateCommand("SELECT ID FROM QuestTeste"))
-            using (DbConnection conn = new NpgsqlConnection(connectionString))
-            {
+            //using (var cmd = dataSource.CreateCommand("SELECT * FROM TestPartition"))
+            //using (DbConnection conn = new NpgsqlConnection(connectionString))
+            //{
 
-                using (DbCommand command = conn.CreateCommand())
-                {
-                    //cmd.Parameters.AddWithValue(1);
-                    //cmd.ExecuteNonQuery();
-                    using (var reader = cmd.ExecuteReader())
-                    while (reader.Read())
-                    {
-                        Console.WriteLine(reader.GetInt64(0));
-                    }
-                    conn.Close();
-                    conn.Dispose();
-                }
-                dataSource.Dispose();
-                cmd.Dispose();
-                
-            }       
+            //    using (DbCommand command = conn.CreateCommand())
+            //    {
+            //        //cmd.Parameters.AddWithValue(1);
+            //        //cmd.ExecuteNonQuery();
+            //        using (var reader = cmd.ExecuteReader())
+            //        while (reader.Read())
+            //        {
+            //            Console.WriteLine(reader.GetInt64(0));
+            //        }
+            //        conn.Close();
+            //        conn.Dispose();
+            //    }
+
+            //    cmd.Dispose();
+            //}
+            dataSource.Dispose();
+            return null;
         }
         public void InsertData()
         {

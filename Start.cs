@@ -14,9 +14,12 @@ namespace QuestDbQueryConsole
           {    
             QueryManager qm= new QueryManager();
             Console.WriteLine("Consulta QuestDB");
-            qm.InsertData_QuestDBWireProtocol();
-            qm.DisplayData();
-            qm.DisplayData_QuestDBWireProtocol();
+            for (int i = 0; i < 150000000; i++)
+            {
+                qm.InsertData_QuestDBWireProtocol();
+            }
+            //qm.DisplayData();
+            //qm.DisplayData_QuestDBWireProtocol();
             
             //qm.InsertData();
           }
