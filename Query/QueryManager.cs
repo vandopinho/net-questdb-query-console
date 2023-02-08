@@ -131,7 +131,7 @@ namespace QuestDbQueryConsole.Query
         }
           public void QuestDb_Partition()
           {
-               Console.WriteLine("\n\nQuestDb_Partition");
+               Console.WriteLine("\nQuestDb_Partition");
                string username = "admin";
                string password = "quest";
                string database = "questdb";
