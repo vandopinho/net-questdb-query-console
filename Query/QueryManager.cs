@@ -78,7 +78,7 @@ namespace QuestDbQueryConsole.Query
                 conn.Close();
             }
           }
-        public void DisplayData_QuestDBWireProtocol()
+          public void DisplayData_QuestDBWireProtocol()
         {
             Console.WriteLine("\n\nSelect usando Npgsql Wire Protocol");
             string username = "admin";
@@ -129,8 +129,101 @@ namespace QuestDbQueryConsole.Query
             Console.WriteLine("Hora fim: " + final.ToString()+"\n");
             
         }
-        public void InsertData_QuestDBWireProtocol()
-        {
+          public void QuestDb_Partition()
+          {
+               Console.WriteLine("\n\nQuestDb_Partition");
+               string username = "admin";
+               string password = "quest";
+               string database = "questdb";
+               int port = 8812;
+               var connectionString = $@"host=localhost;port={port};username={username};password={password};database={database};ServerCompatibilityMode=NoTypeLoading;";
+
+               var dataSource = NpgsqlDataSource.Create(connectionString);
+               string query = "INSERT INTO my_table\r\nSELECT timestamp_sequence(\r\n    to_timestamp('2021-01-01T00:00:00', 'yyyy-MM-ddTHH:mm:ss'),100000L * 36000), x\r\nFROM long_sequence(120);";
+               Console.WriteLine(query);
+               DateTime inicio = DateTime.Now;
+               Console.WriteLine("Hora inicio: " + inicio.ToString());
+
+               List<DadosEntityWireProtocol> listmachine = new List<DadosEntityWireProtocol>();
+               DadosEntityWireProtocol machine = new DadosEntityWireProtocol();
+               using (var cmd = dataSource.CreateCommand(query))
+               using (var reader = cmd.ExecuteReader())
+               {
+                    while (reader.Read())
+                    {
+                         machine = new DadosEntityWireProtocol();
+                         machine.Datetime = (reader.GetString(0));
+                         machine.Name = (reader.GetString(1));
+                         listmachine.Add(machine);
+                    }
+                    cmd.Dispose();
+               }
+
+
+               DateTime final = DateTime.Now;
+               Console.WriteLine("Hora fim: " + final.ToString() + "\n");
+
+               using (var cmd = dataSource.CreateCommand("SELECT x FROM my_table"))
+               using (DbConnection conn = new NpgsqlConnection(connectionString))
+               {
+                    Console.WriteLine(cmd.CommandText);
+                    using (DbCommand command = conn.CreateCommand())
+                    {
+                         //cmd.Parameters.AddWithValue(1);
+                         //cmd.ExecuteNonQuery();
+                         using (var reader = cmd.ExecuteReader())
+                              while (reader.Read())
+                              {
+                                   Console.Write(reader.GetInt64(0) + "; ");
+                              }
+                         conn.Close();
+                         conn.Dispose();
+                    }
+
+                    cmd.Dispose();
+               }
+               using (var cmd = dataSource.CreateCommand("ALTER TABLE my_table DROP PARTITION\r\nWHERE timestamp < to_timestamp('2021-01-03', 'yyyy-MM-dd');"))
+               using (DbConnection conn = new NpgsqlConnection(connectionString))
+               {
+                    Console.WriteLine("\n"+cmd.CommandText);
+                    using (DbCommand command = conn.CreateCommand())
+                    {
+                         //cmd.Parameters.AddWithValue(1);
+                         //cmd.ExecuteNonQuery();
+                         using (var reader = cmd.ExecuteReader())
+                              while (reader.Read())
+                              {
+                                  //Console.Write(reader.GetInt64(0) + "; ");
+                              }
+                         conn.Close();
+                         conn.Dispose();
+                    }
+                   
+                    cmd.Dispose();
+               }
+               using (var cmd = dataSource.CreateCommand("SELECT x FROM my_table"))
+               using (DbConnection conn = new NpgsqlConnection(connectionString))
+               {
+                    Console.WriteLine(cmd.CommandText);
+                    using (DbCommand command = conn.CreateCommand())
+                    {
+                         //cmd.Parameters.AddWithValue(1);
+                         //cmd.ExecuteNonQuery();
+                         using (var reader = cmd.ExecuteReader())
+                              while (reader.Read())
+                              {
+                                   Console.Write(reader.GetInt64(0) + "; ");
+                              }
+                         conn.Close();
+                         conn.Dispose();
+                    }
+                    //dataSource.Dispose();
+                    cmd.Dispose();
+               }
+
+          }
+          public void InsertData_QuestDBWireProtocol()
+          {
             Console.WriteLine("Teste QuestDB Wire Protocol c/ Insert");
             string username = "admin";
             string password = "quest";
@@ -177,7 +270,7 @@ namespace QuestDbQueryConsole.Query
                 
             }       
         }
-        public void InsertData()
+          public void InsertData()
         {
             List<DadosEntity> listDados = new List<DadosEntity>();
             using (SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=master;Integrated Security=True;"))
@@ -218,6 +311,7 @@ namespace QuestDbQueryConsole.Query
                 }
             }
         }
+
         /// <summary>
         /// Método Auxiliar para gerar int ou float aleatório
         /// </summary>
