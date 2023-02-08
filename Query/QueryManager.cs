@@ -311,7 +311,6 @@ namespace QuestDbQueryConsole.Query
                 }
             }
         }
-
         /// <summary>
         /// Método Auxiliar para gerar int ou float aleatório
         /// </summary>

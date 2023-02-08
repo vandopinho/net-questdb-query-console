@@ -14,11 +14,11 @@ namespace QuestDbQueryConsole
           {    
             QueryManager qm= new QueryManager();
             Console.WriteLine("Consulta QuestDB");
-           // qm.InsertData_QuestDBWireProtocol();
-           // qm.DisplayData();
-          //  qm.DisplayData_QuestDBWireProtocol();
-               //qm.InsertData();
-               qm.QuestDb_Partition();
+            //qm.InsertData_QuestDBWireProtocol();
+            //qm.DisplayData();
+            //qm.DisplayData_QuestDBWireProtocol();
+            //qm.InsertData();
+            qm.QuestDb_Partition();
           }
      }
 }
